@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ananya Nayak — Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=Bebas+Neue&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #080c14;
+  --bg2: #0d1421;
+  --gold: #c9a84c;
+  --gold2: #e8c97a;
+  --text: #e8e3d9;
+  --muted: #7a8494;
+  --glass: rgba(255,255,255,0.04);
+  --border: rgba(201,168,76,0.2);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ── CURSOR ── */
+#cursor {
+  width: 10px; height: 10px;
+  background: var(--gold);
+  border-radius: 50%;
+  position: fixed; top: 0; left: 0;
+  pointer-events: none; z-index: 9999;
+  transform: translate(-50%,-50%);
+  transition: transform 0.1s, width 0.3s, height 0.3s, background 0.3s;
+  mix-blend-mode: screen;
+}
+#cursor-ring {
+  width: 36px; height: 36px;
+  border: 1px solid rgba(201,168,76,0.5);
+  border-radius: 50%;
+  position: fixed; top: 0; left: 0;
+  pointer-events: none; z-index: 9998;
+  transform: translate(-50%,-50%);
+  transition: transform 0.18s ease, width 0.3s, height 0.3s;
+}
+body:hover #cursor { opacity: 1; }
+
+/* ── CANVAS ── */
+#bg-canvas {
+  position: fixed; inset: 0;
+  z-index: 0; pointer-events: none;
+  opacity: 0.6;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 24px 60px;
+  transition: background 0.4s, backdrop-filter 0.4s;
+}
+nav.scrolled {
+  background: rgba(8,12,20,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 3px;
+  color: var(--gold);
+}
+.nav-links { display: flex; gap: 36px; list-style: none; }
+.nav-links a {
+  font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--muted); text-decoration: none;
+  transition: color 0.3s; position: relative;
+}
+.nav-links a::after {
+  content: ''; position: absolute; bottom: -4px; left: 0;
+  width: 0; height: 1px; background: var(--gold);
+  transition: width 0.3s;
+}
+.nav-links a:hover { color: var(--gold2); }
+.nav-links a:hover::after { width: 100%; }
+
+/* ── HERO ── */
+#hero {
+  position: relative; min-height: 100vh; z-index: 1;
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: flex-start;
+  padding: 0 60px 0 60px;
+  overflow: hidden;
+}
+
+.hero-eyebrow {
+  font-size: 11px; letter-spacing: 5px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 24px;
+  display: flex; align-items: center; gap: 14px;
+  opacity: 0; animation: fadeUp 1s 0.3s forwards;
+}
+.hero-eyebrow::before {
+  content: ''; width: 40px; height: 1px; background: var(--gold);
+}
+
+.hero-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(64px, 10vw, 130px);
+  font-weight: 300; line-height: 0.9;
+  letter-spacing: -2px;
+  opacity: 0; animation: fadeUp 1s 0.5s forwards;
+}
+.hero-name em {
+  font-style: italic; color: var(--gold2);
+}
+
+.hero-tagline {
+  margin-top: 32px;
+  font-size: 15px; font-weight: 300;
+  color: var(--muted); max-width: 480px;
+  line-height: 1.8;
+  opacity: 0; animation: fadeUp 1s 0.8s forwards;
+}
+
+.hero-cta {
+  margin-top: 48px;
+  display: flex; gap: 20px; align-items: center;
+  opacity: 0; animation: fadeUp 1s 1s forwards;
+}
+.btn-primary {
+  padding: 14px 36px;
+  background: var(--gold);
+  color: var(--bg);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px; font-weight: 500;
+  letter-spacing: 2px; text-transform: uppercase;
+  border: none; cursor: none;
+  text-decoration: none;
+  transition: background 0.3s, transform 0.3s;
+  display: inline-block;
+}
+.btn-primary:hover { background: var(--gold2); transform: translateY(-2px); }
+.btn-ghost {
+  font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--muted); text-decoration: none;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 3px; transition: color 0.3s, border-color 0.3s;
+}
+.btn-ghost:hover { color: var(--gold2); border-color: var(--gold2); }
+
+.hero-scroll-hint {
+  position: absolute; bottom: 40px; left: 60px;
+  font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--muted); display: flex; align-items: center; gap: 12px;
+  opacity: 0; animation: fadeUp 1s 1.3s forwards;
+}
+.scroll-line {
+  width: 1px; height: 50px; background: linear-gradient(to bottom, var(--gold), transparent);
+  animation: scrollPulse 2s infinite;
+}
+
+.hero-year {
+  position: absolute; right: 60px; bottom: 40px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 100px; color: rgba(201,168,76,0.06);
+  letter-spacing: -4px; line-height: 1;
+  pointer-events: none;
+}
+
+/* ── SECTIONS ── */
+section {
+  position: relative; z-index: 1;
+  padding: 120px 60px;
+}
+
+.section-label {
+  font-size: 10px; letter-spacing: 5px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 60px;
+  display: flex; align-items: center; gap: 16px;
+}
+.section-label::before {
+  content: ''; width: 30px; height: 1px; background: var(--gold);
+}
+
+.section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(40px, 6vw, 72px);
+  font-weight: 300; line-height: 1.05;
+  margin-bottom: 24px;
+}
+.section-title em { font-style: italic; color: var(--gold2); }
+
+/* ── ABOUT ── */
+#about { background: var(--bg2); }
+.about-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
+  align-items: start; margin-top: 48px;
+}
+.about-text { font-size: 16px; line-height: 2; color: #b0b8c8; }
+.about-text p + p { margin-top: 20px; }
+.about-stats {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 2px;
+}
+.stat-card {
+  background: var(--glass);
+  border: 1px solid var(--border);
+  padding: 36px 28px;
+  transition: border-color 0.3s, background 0.3s;
+}
+.stat-card:hover {
+  border-color: var(--gold);
+  background: rgba(201,168,76,0.05);
+}
+.stat-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 52px; font-weight: 300;
+  color: var(--gold2); line-height: 1;
+}
+.stat-label {
+  font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--muted); margin-top: 8px;
+}
+
+/* ── SKILLS ── */
+#skills { background: var(--bg); }
+.skills-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px;
+  margin-top: 64px;
+}
+.skill-group {
+  background: var(--glass); border: 1px solid var(--border);
+  padding: 40px 36px; transition: transform 0.4s, border-color 0.3s;
+}
+.skill-group:hover { transform: translateY(-6px); border-color: var(--gold); }
+.skill-group-title {
+  font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 24px;
+}
+.skill-tag {
+  display: inline-block;
+  font-size: 12px; padding: 6px 14px;
+  border: 1px solid rgba(201,168,76,0.25);
+  color: var(--muted); margin: 4px 4px 4px 0;
+  transition: border-color 0.3s, color 0.3s, background 0.3s;
+}
+.skill-tag:hover {
+  border-color: var(--gold); color: var(--gold2);
+  background: rgba(201,168,76,0.08);
+}
+
+/* ── EXPERIENCE ── */
+#experience { background: var(--bg2); }
+.timeline { margin-top: 64px; position: relative; }
+.timeline::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 1px; background: linear-gradient(to bottom, var(--gold), transparent);
+}
+.timeline-item {
+  padding: 0 0 60px 48px; position: relative;
+  opacity: 0; transform: translateX(-20px);
+  transition: opacity 0.6s, transform 0.6s;
+}
+.timeline-item.visible { opacity: 1; transform: translateX(0); }
+.timeline-dot {
+  position: absolute; left: -5px; top: 6px;
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--gold); box-shadow: 0 0 16px var(--gold);
+}
+.timeline-date {
+  font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 12px;
+}
+.timeline-role {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px; font-weight: 300;
+}
+.timeline-company {
+  font-size: 13px; color: var(--muted); margin-top: 4px; margin-bottom: 20px;
+}
+.timeline-list { list-style: none; }
+.timeline-list li {
+  font-size: 14px; color: #8a96a8; line-height: 1.8;
+  padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+  display: flex; align-items: flex-start; gap: 12px;
+}
+.timeline-list li::before {
+  content: '→'; color: var(--gold); flex-shrink: 0; margin-top: 2px;
+}
+
+/* ── PROJECTS ── */
+#projects { background: var(--bg); }
+.projects-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 2px;
+  margin-top: 64px;
+}
+.project-card {
+  background: var(--glass); border: 1px solid var(--border);
+  padding: 48px 40px; position: relative; overflow: hidden;
+  transition: border-color 0.4s;
+}
+.project-card::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(to right, transparent, var(--gold), transparent);
+  transform: scaleX(0); transition: transform 0.5s;
+}
+.project-card:hover { border-color: rgba(201,168,76,0.5); }
+.project-card:hover::before { transform: scaleX(1); }
+.project-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 72px; color: rgba(201,168,76,0.07);
+  line-height: 1; margin-bottom: -20px;
+}
+.project-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px; font-weight: 300; margin-bottom: 12px;
+  position: relative;
+}
+.project-stack {
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 20px;
+}
+.project-desc { font-size: 13px; color: #7a8494; line-height: 1.8; }
+.project-outcome {
+  margin-top: 24px;
+  display: flex; gap: 20px; flex-wrap: wrap;
+}
+.outcome-chip {
+  font-size: 11px; padding: 5px 14px;
+  background: rgba(201,168,76,0.1);
+  border: 1px solid rgba(201,168,76,0.3);
+  color: var(--gold2);
+}
+
+/* ── ACHIEVEMENTS ── */
+#achievements { background: var(--bg2); }
+.achieve-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px;
+  margin-top: 64px;
+}
+.achieve-card {
+  background: var(--glass); border: 1px solid var(--border);
+  padding: 40px; transition: transform 0.3s, border-color 0.3s;
+}
+.achieve-card:hover { transform: translateY(-4px); border-color: var(--gold); }
+.achieve-icon { font-size: 32px; margin-bottom: 20px; }
+.achieve-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px; margin-bottom: 10px;
+}
+.achieve-desc { font-size: 13px; color: var(--muted); line-height: 1.7; }
+
+/* ── CONTACT ── */
+#contact {
+  background: var(--bg);
+  text-align: center; position: relative; overflow: hidden;
+}
+.contact-glow {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px; height: 600px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.contact-email {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(28px, 4vw, 52px); font-weight: 300;
+  color: var(--gold2); text-decoration: none;
+  border-bottom: 1px solid rgba(201,168,76,0.3);
+  padding-bottom: 6px; transition: border-color 0.3s;
+  display: inline-block; margin: 32px 0;
+}
+.contact-email:hover { border-color: var(--gold2); }
+.contact-links {
+  display: flex; justify-content: center; gap: 32px; margin-top: 40px;
+}
+.contact-links a {
+  font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--muted); text-decoration: none; transition: color 0.3s;
+}
+.contact-links a:hover { color: var(--gold2); }
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--border); padding: 24px 60px;
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 11px; color: var(--muted); letter-spacing: 1px;
+  position: relative; z-index: 1;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes scrollPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+.reveal {
+  opacity: 0; transform: translateY(40px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.reveal.visible {
+  opacity: 1; transform: translateY(0);
+}
+
+/* Stagger */
+.reveal:nth-child(2) { transition-delay: 0.1s; }
+.reveal:nth-child(3) { transition-delay: 0.2s; }
+.reveal:nth-child(4) { transition-delay: 0.3s; }
+
+/* ── MARQUEE ── */
+.marquee-wrap {
+  overflow: hidden; border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 18px 0; position: relative; z-index: 1;
+  background: var(--bg);
+}
+.marquee-track {
+  display: flex; gap: 60px; width: max-content;
+  animation: marquee 24s linear infinite;
+}
+.marquee-item {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 14px; letter-spacing: 4px;
+  color: var(--muted); white-space: nowrap;
+}
+.marquee-item span { color: var(--gold); margin-right: 60px; }
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* ── MOBILE ── */
+@media (max-width: 768px) {
+  nav { padding: 20px 24px; }
+  .nav-links { display: none; }
+  section { padding: 80px 24px; }
+  #hero { padding: 0 24px; }
+  .hero-scroll-hint, .hero-year { left: 24px; right: 24px; }
+  .about-grid, .skills-grid, .projects-grid, .achieve-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- Custom Cursor -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- Background Canvas -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- NAV -->
+<nav id="navbar">
+  <div class="nav-logo">AN</div>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-eyebrow">Business Analyst & Consultant</div>
+  <h1 class="hero-name">Ananya<br><em>Nayak</em></h1>
+  <p class="hero-tagline">Final-year CS student at KIIT University — transforming ambiguous problems into data-driven frameworks that deliver measurable results.</p>
+  <div class="hero-cta">
+    <a href="#projects" class="btn-primary">View Work</a>
+    <a href="#contact" class="btn-ghost">Let's Connect →</a>
+  </div>
+  <div class="hero-scroll-hint">
+    <div class="scroll-line"></div>
+    Scroll to explore
+  </div>
+  <div class="hero-year">2026</div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <div class="marquee-item">Business Analysis <span>✦</span></div>
+    <div class="marquee-item">Power BI <span>✦</span></div>
+    <div class="marquee-item">SQL <span>✦</span></div>
+    <div class="marquee-item">Management Consulting <span>✦</span></div>
+    <div class="marquee-item">UI/UX Design <span>✦</span></div>
+    <div class="marquee-item">Stakeholder Engagement <span>✦</span></div>
+    <div class="marquee-item">Machine Learning <span>✦</span></div>
+    <div class="marquee-item">Data Visualization <span>✦</span></div>
+    <!-- duplicate for seamless loop -->
+    <div class="marquee-item">Business Analysis <span>✦</span></div>
+    <div class="marquee-item">Power BI <span>✦</span></div>
+    <div class="marquee-item">SQL <span>✦</span></div>
+    <div class="marquee-item">Management Consulting <span>✦</span></div>
+    <div class="marquee-item">UI/UX Design <span>✦</span></div>
+    <div class="marquee-item">Stakeholder Engagement <span>✦</span></div>
+    <div class="marquee-item">Machine Learning <span>✦</span></div>
+    <div class="marquee-item">Data Visualization <span>✦</span></div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-label">01 — About</div>
+  <h2 class="section-title reveal">Bridging <em>technology</em><br>& business strategy</h2>
+  <div class="about-grid">
+    <div class="about-text reveal">
+      <p>I'm a Computer Science student at KIIT University with a passion for turning complex data into clear, actionable insights. My work lives at the intersection of analytical rigour and strategic thinking.</p>
+      <p>At Reliance Industries, I redesigned enterprise platforms used across 3+ modules — leading to measurable efficiency gains through user-centered design and stakeholder collaboration.</p>
+      <p>Whether it's building KPI dashboards, leading market research, or engineering AI-powered risk systems, I bring a consulting mindset to every problem I touch.</p>
+    </div>
+    <div class="about-stats reveal">
+      <div class="stat-card">
+        <div class="stat-num">25%</div>
+        <div class="stat-label">Efficiency Improvement at Reliance</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">40%</div>
+        <div class="stat-label">Increase in Event Participation</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">95%</div>
+        <div class="stat-label">Predictive Accuracy (ML Model)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">10+</div>
+        <div class="stat-label">Brand Partnerships Secured</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="section-label">02 — Skills</div>
+  <h2 class="section-title reveal">A full-spectrum <em>toolkit</em></h2>
+  <div class="skills-grid">
+    <div class="skill-group reveal">
+      <div class="skill-group-title">Consulting & Analytical</div>
+      <span class="skill-tag">Business Analysis</span>
+      <span class="skill-tag">Management Consulting</span>
+      <span class="skill-tag">Requirements Gathering</span>
+      <span class="skill-tag">Stakeholder Engagement</span>
+      <span class="skill-tag">Process Optimization</span>
+      <span class="skill-tag">Root Cause Analysis</span>
+      <span class="skill-tag">Risk Assessment</span>
+      <span class="skill-tag">Strategic Thinking</span>
+    </div>
+    <div class="skill-group reveal">
+      <div class="skill-group-title">Analytics & Tools</div>
+      <span class="skill-tag">SQL</span>
+      <span class="skill-tag">Advanced Excel</span>
+      <span class="skill-tag">Power BI</span>
+      <span class="skill-tag">Data Visualization</span>
+      <span class="skill-tag">KPI Tracking</span>
+      <span class="skill-tag">Scenario Analysis</span>
+      <span class="skill-tag">Demand Forecasting</span>
+      <span class="skill-tag">Python</span>
+      <span class="skill-tag">Java</span>
+      <span class="skill-tag">DBMS</span>
+    </div>
+    <div class="skill-group reveal">
+      <div class="skill-group-title">Core Competencies</div>
+      <span class="skill-tag">Quantitative Analysis</span>
+      <span class="skill-tag">Cross-functional Collaboration</span>
+      <span class="skill-tag">Executive Presentation</span>
+      <span class="skill-tag">Requirements Documentation</span>
+      <span class="skill-tag">Workflow Design</span>
+      <span class="skill-tag">UI/UX Research</span>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="section-label">03 — Experience</div>
+  <h2 class="section-title reveal">Where I've <em>applied</em><br>my craft</h2>
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-date">May 2025 — Jun. 2025</div>
+      <div class="timeline-role">UI/UX Design Intern</div>
+      <div class="timeline-company">Reliance Industries Ltd.</div>
+      <ul class="timeline-list">
+        <li>Redesigned 3 enterprise platforms — Warehouse Inventory Portal, Credentials Verification System, and Transport Portal — with intuitive end-to-end workflows.</li>
+        <li>Collaborated with clients and cross-functional stakeholders to translate business needs into wireframes and prototypes aligned with operational objectives.</li>
+        <li>Optimized user journeys across 3+ modules, reducing task complexity and improving efficiency by 25%.</li>
+      </ul>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-date">Sep. 2023 — Aug. 2024</div>
+      <div class="timeline-role">Marketing Research & Strategy Lead</div>
+      <div class="timeline-company">Kzarshion Fashion Society, KIIT University</div>
+      <ul class="timeline-list">
+        <li>Executed market research and competitive analysis, securing collaborations with 10+ brands and local businesses.</li>
+        <li>Developed data-backed engagement strategies that increased event participation by 40%+ across 3 campaigns.</li>
+        <li>Analyzed user behavior and campaign metrics to refine outreach strategies, improving conversion rates and stakeholder satisfaction.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="section-label">04 — Projects</div>
+  <h2 class="section-title reveal">Work that <em>speaks</em><br>in numbers</h2>
+  <div class="projects-grid">
+    <div class="project-card reveal">
+      <div class="project-num">01</div>
+      <div class="project-name">Supply Chain KPI Dashboard</div>
+      <div class="project-stack">SQL · Power BI · Excel · Jan–Mar 2026</div>
+      <p class="project-desc">Designed a comprehensive KPI tracking framework monitoring 10+ supply chain metrics. Performed root cause analysis using SQL optimization and built scenario models simulating 3 inventory planning strategies.</p>
+      <div class="project-outcome">
+        <span class="outcome-chip">25% Reporting Efficiency ↑</span>
+        <span class="outcome-chip">20% Data Retrieval Time ↓</span>
+        <span class="outcome-chip">3 Scenario Models</span>
+      </div>
+    </div>
+    <div class="project-card reveal">
+      <div class="project-num">02</div>
+      <div class="project-name">AI-Powered Crop Insurance System</div>
+      <div class="project-stack">Python · ML · Business Analysis · Oct 2024–Feb 2025</div>
+      <p class="project-desc">Integrated satellite, weather, soil, and yield data to build a crop risk assessment model using Vision and Temporal Fusion Transformers. Identified 5 key workflow inefficiencies and delivered a full cost-benefit analysis with a 3-phase implementation roadmap.</p>
+      <div class="project-outcome">
+        <span class="outcome-chip">95% Predictive Accuracy</span>
+        <span class="outcome-chip">40% Manual Dependency ↓</span>
+        <span class="outcome-chip">ICCCNET 2025</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACHIEVEMENTS -->
+<section id="achievements">
+  <div class="section-label">05 — Achievements</div>
+  <h2 class="section-title reveal">Recognition &amp; <em>leadership</em></h2>
+  <div class="achieve-grid">
+    <div class="achieve-card reveal">
+      <div class="achieve-icon">📜</div>
+      <div class="achieve-title">ICCCNET 2025 — Research Publication</div>
+      <p class="achieve-desc">Certificate of Participation for research paper: "AI-Driven Crop Insurance in India: A Data-Driven Approach to Risk Mitigation" — presented at an international conference on computing and network technologies.</p>
+    </div>
+    <div class="achieve-card reveal">
+      <div class="achieve-icon">🎨</div>
+      <div class="achieve-title">Graphic Designer — Kzarshion</div>
+      <p class="achieve-desc">Led visual identity and design work for one of KIIT's prominent fashion societies, crafting campaign assets and event collateral that supported 40%+ audience growth.</p>
+    </div>
+    <div class="achieve-card reveal">
+      <div class="achieve-icon">🤝</div>
+      <div class="achieve-title">Point of Contact — 15+ Partnerships</div>
+      <p class="achieve-desc">Managed 15+ college and brand partnerships simultaneously, coordinating cross-functional teams for large-scale events and ensuring seamless stakeholder communication.</p>
+    </div>
+    <div class="achieve-card reveal">
+      <div class="achieve-icon">🎓</div>
+      <div class="achieve-title">B.Tech CSE — KIIT University</div>
+      <p class="achieve-desc">Pursuing Computer Science Engineering with a CGPA of 7.80/10.00, specializing in business analytics, AI/ML, and enterprise software development.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-glow"></div>
+  <div class="section-label" style="justify-content:center;">06 — Contact</div>
+  <h2 class="section-title reveal" style="text-align:center;">Let's create<br><em>something great</em></h2>
+  <p class="reveal" style="color:var(--muted);max-width:440px;margin:0 auto;line-height:1.8;text-align:center;">Open to consulting roles, internships, and collaborative opportunities where data meets strategy.</p>
+  <div style="text-align:center;" class="reveal">
+    <a href="mailto:ananyana164@gmail.com" class="contact-email">ananyana164@gmail.com</a>
+  </div>
+  <div class="contact-links reveal">
+    <a href="https://linkedin.com/in/ananya-nayak-70b45729a" target="_blank">LinkedIn ↗</a>
+    <a href="tel:+916351109461">+91 6351 109 461</a>
+    <a href="#">Download CV ↓</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span>© 2026 Ananya Nayak</span>
+  <span>Bhubaneswar, India</span>
+</footer>
+
+<script>
+// ── CURSOR ──
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+let mx = 0, my = 0, rx = 0, ry = 0;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.left = mx + 'px';
+  cursor.style.top = my + 'px';
+});
+
+function animateRing() {
+  rx += (mx - rx) * 0.12;
+  ry += (my - ry) * 0.12;
+  ring.style.left = rx + 'px';
+  ring.style.top = ry + 'px';
+  requestAnimationFrame(animateRing);
+}
+animateRing();
+
+document.querySelectorAll('a, button, .skill-tag, .stat-card, .project-card, .achieve-card').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    cursor.style.width = '20px';
+    cursor.style.height = '20px';
+    ring.style.width = '60px';
+    ring.style.height = '60px';
+  });
+  el.addEventListener('mouseleave', () => {
+    cursor.style.width = '10px';
+    cursor.style.height = '10px';
+    ring.style.width = '36px';
+    ring.style.height = '36px';
+  });
+});
+
+// ── CANVAS PARTICLES ──
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+let W, H, particles = [];
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+function createParticle() {
+  return {
+    x: Math.random() * W,
+    y: Math.random() * H,
+    vx: (Math.random() - 0.5) * 0.3,
+    vy: (Math.random() - 0.5) * 0.3,
+    r: Math.random() * 1.5 + 0.3,
+    alpha: Math.random() * 0.5 + 0.1
+  };
+}
+
+for (let i = 0; i < 120; i++) particles.push(createParticle());
+
+function drawParticles() {
+  ctx.clearRect(0, 0, W, H);
+  // Connections
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist < 130) {
+        ctx.beginPath();
+        ctx.strokeStyle = `rgba(201,168,76,${0.12 * (1 - dist/130)})`;
+        ctx.lineWidth = 0.5;
+        ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.lineTo(particles[j].x, particles[j].y);
+        ctx.stroke();
+      }
+    }
+  }
+  // Dots
+  particles.forEach(p => {
+    p.x += p.vx; p.y += p.vy;
+    if (p.x < 0 || p.x > W) p.vx *= -1;
+    if (p.y < 0 || p.y > H) p.vy *= -1;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(201,168,76,${p.alpha})`;
+    ctx.fill();
+  });
+  requestAnimationFrame(drawParticles);
+}
+drawParticles();
+
+// ── NAV SCROLL ──
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 60);
+});
+
+// ── SCROLL REVEAL ──
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.reveal, .timeline-item').forEach(el => observer.observe(el));
+
+// ── SMOOTH CURSOR ON MOBILE FALLBACK ──
+document.addEventListener('touchstart', () => {
+  cursor.style.display = 'none';
+  ring.style.display = 'none';
+});
+</script>
+</body>
+</html>
